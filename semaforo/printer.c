@@ -7,29 +7,10 @@
 #include <semaphore.h>
 #include <fcntl.h>
 
+//global semaphore
 sem_t *sem;
-
-void* menu(void *args){
-	while(getchar() != 'q');
-	sem_close(sem);
-	sem_unlink("/sem_printer");
-	exit(0);
-	return NULL;
-}
-int main()
-{
+void* imprime(void *args){
 	int in = 0, out = 0;
-	
-	//pega nÃºmero do processo e grava no arquivo para writer poder acordar o printer
-	pid_t pid = getpid();
-	FILE* pidfile = fopen("pidprinter.txt", "w");
-	fprintf(pidfile, "%d", pid);
-	fclose(pidfile); 
-
-	//cria semÃ¡foro, inicializando como verde (1)
-	sem_unlink("/sem_printer");
-    sem = sem_open("/sem_printer", O_CREAT | O_EXCL, 0644, 1);
-
 	while(1)
 	{
 		//Espera o semÃ¡foro ficar verde para continuar. Antes de entrar na regiÃ£o crÃ­tica, coloca vermelho (0)
@@ -81,7 +62,29 @@ int main()
 		sem_post(sem);
 		
 		//Se imprimiu tudo (out = -1), durma
-		if(out == -1) raise(SIGSTOP);
+		//if(out == -1) raise(SIGSTOP);
 	}
-	return 0;
+	return NULL;
+}
+void* menu(void *args){
+	while(getchar() != 'q');
+	sem_close(sem);
+	sem_unlink("/sem_printer");
+	exit(0);
+	return NULL;
+}
+int main()
+{
+	pid_t pid = getpid();
+	FILE* pidfile = fopen("pidprintex.txt","w");
+	fprintf(pidfile, "%d", pid );
+	sem_unlink("/sem_printer");
+	sem = sem_open("/sem_printer",O_CREAT | O_EXCL, 0644,1);
+	pthread_t thread1,thread2;
+
+	pthread_create(&thread1,NULL,imprime,NULL);
+	pthread_create(&thread2,NULL,menu,NULL);
+
+	pthread_join(thread1,NULL);
+	pthread_join(thread2,NULL);
 }
