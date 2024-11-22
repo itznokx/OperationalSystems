@@ -18,6 +18,7 @@ int main()
 	fclose(pidfile); 
 
 	//cria semÃ¡foro, inicializando como verde (1)
+	sem_unlink("/sem_printer");
     sem_t *sem = sem_open("/sem_printer", O_CREAT | O_EXCL, 0644, 1);
 
 	while(1)
