@@ -14,13 +14,14 @@ int main(){
 		exit(1);
 	}
 
-	sem_wait(sem_result);
-	printf("Escrevendo no arquivo de resultado.\n");
-	sleep(1);
-
 	sem_wait(sem_log);
 	printf("Escrevendo no arquivo e log.\n");
 	sleep(1);
+	sem_wait(sem_result);
+	printf("Escrevendo no arquivo de resultado.\n");
+	//wait 2 sec
+	sleep(1);
+
 
 	sem_post(sem_result);
 	sem_post(sem_log);
