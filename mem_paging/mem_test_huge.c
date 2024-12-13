@@ -5,7 +5,7 @@
 #include <sys/mman.h>
 
 #define NUM_ALLOCS 100
-#define ALLOC_SIZE (2*1048576)
+#define ALLOC_SIZE (2*1024*1024)
 
 void* allocmem (size_t size){
 	void* ptr = mmap(	NULL,
@@ -33,7 +33,8 @@ int main (){
 
 	for (int i=0; i<NUM_ALLOCS;i++){
 		allocs[i] = allocmem(ALLOC_SIZE);
-		if (allocs[i]){ 
+		
+		if (allocs[i]==NULL){ 
 			perror("Erro ao alocar.\n");
 			exit(1);
 		}
