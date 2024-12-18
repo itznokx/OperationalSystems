@@ -1,4 +1,4 @@
-#include <stdio.h>
+ #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
@@ -41,7 +41,7 @@ void *imprime(void* args)
 		}else{
 			if(in == out)
 			    in = 0;
-			out = -1;
+			out = -1;	
 			
 		}
 
