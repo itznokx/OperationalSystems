@@ -334,7 +334,6 @@ void* service(void* args){
 		if (running==0)
 			break;
 		Cliente* client;
-		// Atende 1 a cada 3 da fila Normal
 		int cond = counter%3;
 		if ((cond==0)){
 			if (normalQueue->size > 0){
@@ -382,8 +381,8 @@ void* service(void* args){
 	long seconds,useconds;
 	seconds = program_end.tv_sec - program_start.tv_sec;
 	useconds = program_end.tv_usec - program_start.tv_usec;
-	double total_time = seconds + useconds/1000000.0;
-	printf("Tempo total de execução: %.3f ms\n", total_time);
+	double total_time_s = seconds + useconds/1000000.0;
+	printf("Tempo total de execução: %.6f s\n", total_time_s);
 	//printf("CheckpointFinal\n");
 	analist_read_left();
 	remove("lng.txt");
@@ -402,7 +401,6 @@ int main (int narg,char* argv[]){
 		globalPatience = atoi(argv[2]);
 	}
 	clean();
-	
 	gettimeofday(&program_start,NULL);
 	if (nProcesses==0){
 		nProcesses = MAX_ITER;
