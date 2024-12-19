@@ -47,7 +47,6 @@ int randomPriority (){
 	return (rand()%2);
 }
 void start_queue(FilaCliente *queue,int alloc_size,int priority){
-	//queue = (FilaCliente*)malloc(sizeof(FilaCliente));
 	queue->first = (Cliente*)malloc(alloc_size*sizeof(FilaCliente));
 	// Bloqueador de fila
 	queue->size = 0;
@@ -141,14 +140,6 @@ void* stop_program(void* args){
 }
 int start_analist (){
 	int aux;
-	/*
-	pid_t pidAnalist = fork();
-	if (pidAnalist == 0){
-		execl("./analista.out","empty",(char*)NULL);
-		exit(1);
-	}
-	*/
-	// Setar PID global do analista;
 	FILE* analist = fopen("pidanalista.txt","r");
 	if (!analist){
 		perror("erro analist");
@@ -370,7 +361,6 @@ void* service(void* args){
 	}
 	running = false;
 	printf("Execution end\n");
-	analist_read_left();
 	gettimeofday(&program_end,NULL);
 	printf("Processos atendidos: %d\n",totalClients);
 	calculate_satisfaction();
@@ -379,7 +369,7 @@ void* service(void* args){
 	useconds = program_end.tv_usec - program_start.tv_usec;
 	double total_time = seconds + useconds/1000000.0;
 	printf("Tempo total de execução: %.3f ms\n", total_time);
-	//remove("lng.txt");
+	analist_read_left();
 	return NULL;
 }
 void clean(){

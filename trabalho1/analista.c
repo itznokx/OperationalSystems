@@ -25,6 +25,7 @@ int print_pids(int PID_MAX_PRINT){
     	printf("PID: %i\n",pids[count]);
         count++;
     }
+    fclose(lng);
     return count;
 }
 int main() {
@@ -44,7 +45,6 @@ int main() {
             raise(SIGSTOP);
             continue;
         }
-        fclose(lng);
         int count = print_pids(10);
         if (count == 0) {
             fclose(lng);
