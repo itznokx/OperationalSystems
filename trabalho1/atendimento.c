@@ -164,19 +164,19 @@ void wake_analist(){
 	//printf("Analista rodou.\n");
 }
 void analist_read_left(){
-	
 	int clear=0;
+	printf("here");
 	while (clear==0){
-		FILE* lng = fopen("lng.txt","r+");
+		FILE* lng = fopen("lng.txt","r");
 		if (!lng){
 			sem_post (sem_block);
 			clear=1;
 			break;
 		}
+
 		else{
 			int aux;
 			if (fscanf(lng,"%d",&aux)!=1){
-				
 				fclose(lng);
 				sem_post(sem_block);
 				clear=1;
@@ -188,7 +188,7 @@ void analist_read_left(){
 				wake_analist();
 			}
 		}
-		printf(" ");
+		printf("\n");
 	}
 	remove("lng.txt");
 	return NULL;
@@ -379,7 +379,9 @@ void* service(void* args){
 	useconds = program_end.tv_usec - program_start.tv_usec;
 	double total_time = seconds + useconds/1000000.0;
 	printf("Tempo total de execução: %.3f ms\n", total_time);
+	//printf("CheckpointFinal\n");
 	analist_read_left();
+	remove("lng.txt");
 	return NULL;
 }
 void clean(){

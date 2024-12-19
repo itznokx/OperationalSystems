@@ -39,7 +39,6 @@ int main() {
     raise(SIGSTOP);
     while(1) {
         sem_wait(sem_block);
-        // Verifica se LNG existe
         FILE *lng = fopen("lng.txt", "r");
         if (!lng) {
             sem_post(sem_block);
@@ -54,30 +53,28 @@ int main() {
             raise(SIGSTOP);
             continue;
         }
-
         lng = fopen("lng.txt","r");
         int pidsArray[ALLOC_SIZE];
         int total = 0;
         int aux;
+        int counter = 0;
         int skip = count;
         while(fscanf(lng,"%d",&aux)==1) {
-            if(skip>0) {
-                skip--;
+            if(skip<10) {
+                skip++;
                 continue;
             }
             pidsArray[total++]=aux;
         }
         fclose(lng);
-
-        // Reescrever o arquivo sem os primeiros 'count'
-        lng = fopen("lng.txt","w");
+        FILE* tmp = fopen("tmp.txt","w");
         for (int i=0; i<total; i++) {
-            fprintf(lng,"%d\n",pidsArray[i]);
+            fprintf(tmp,"%d\n",pidsArray[i]);
         }
-        fclose(lng);
-
+        fclose(tmp);
+        remove("lng.txt");
+        rename("lng_tmp.txt","lng.txt");
         sem_post(sem_block);
-        // Volta a dormir
         raise(SIGSTOP);
     }
     return 0;
