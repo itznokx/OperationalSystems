@@ -1,6 +1,5 @@
 *.o
 *.out
-*.pdf
 *.txt
 test.cpp
 test.c
