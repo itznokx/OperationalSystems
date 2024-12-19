@@ -177,14 +177,14 @@ void analist_read_left(){
 		else{
 			int aux;
 			if (fscanf(lng,"%d",&aux)!=1){
-				fclose(lng);
 				sem_post(sem_block);
+				fclose(lng);
 				clear=1;
 				break;
 			}
 			else{
-				fclose(lng);
 				sem_post(sem_block);
+				fclose(lng);
 				wake_analist();
 			}
 		}
@@ -244,7 +244,9 @@ void* reception(void* args){
     int created = 0;
     while ( (running&&nProcesses==0)||( (nProcesses>0) &&(created<nProcesses)))
     {
-    	
+    	if (running==0){
+    		break;
+    	}
     	while (nProcesses==0 && !running){
     		break;
     	}
@@ -308,8 +310,11 @@ void* reception(void* args){
         	enqueue(priorityQueue,client);
         //printf("Cliente %d criado. (%d) (%d)\n",created,client->serviceTime,client->priority);
         created++;
-
+        if (running==0){
+    		break;
+    	}
     }
+    printf("Fim atendimento.\n");
     return NULL;
 }
 void* service(void* args){
