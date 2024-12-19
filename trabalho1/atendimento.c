@@ -47,18 +47,27 @@ int randomPriority (){
 	return (rand()%2);
 }
 void start_queue(FilaCliente *queue,int alloc_size,int priority){
-	queue->first = (Cliente*)malloc(alloc_size*sizeof(FilaCliente));
-	// Bloqueador de fila
-	queue->size = 0;
-	queue->max_size = alloc_size;
-	queue->priority = priority;
-	queue->first = NULL;
-	queue->last = NULL;
+    // Remover alocação desnecessária:
+    // queue->first = (Cliente*)malloc(alloc_size*sizeof(FilaCliente));
+    queue->size = 0;
+    queue->max_size = alloc_size;
+    queue->priority = priority;
+    queue->first = NULL;
+    queue->last = NULL;
 }
-void destroy_queue(FilaCliente* queue){
-	free(queue->first);
-	free(queue->last);
+
+void destroy_queue(FilaCliente* queue) {
+    Cliente* current = queue->first;
+    while(current) {
+        Cliente* tmp = current;
+        current = current->next;
+        free(tmp);
+    }
+    queue->first = NULL;
+    queue->last = NULL;
+    queue->size = 0;
 }
+
 Cliente* new_Client(pid_t pid,int serviceTime,int pp){
 	Cliente* newClient = (Cliente*)malloc(sizeof(Cliente));
 	gettimeofday(&newClient->arrive,NULL);
@@ -179,9 +188,10 @@ void analist_read_left(){
 				wake_analist();
 			}
 		}
-		printf("\0");
+		printf(" ");
 	}
-	return;
+	remove("lng.txt");
+	return NULL;
 }
 double calculate_time_difference (struct timeval start, 
 								struct timeval end){
@@ -384,7 +394,7 @@ int main (int narg,char* argv[]){
 		nProcesses = atoi(argv[1]);
 		globalPatience = atoi(argv[2]);
 	}
-	//clean();
+	clean();
 	
 	gettimeofday(&program_start,NULL);
 	if (nProcesses==0){
@@ -422,6 +432,5 @@ int main (int narg,char* argv[]){
     pthread_cond_destroy(&pQueue_not_empty);
 	destroy_queue(&nQueue);
 	destroy_queue(&pQueue);
-	clean();
 	return 0;
 }

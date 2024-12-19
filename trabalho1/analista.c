@@ -18,18 +18,20 @@ void start_analist(){
 	fclose(pidanalista);
 }
 int print_pids(int PID_MAX_PRINT){
-	FILE* lng = fopen("lng.txt","r+");
-	int pids[MAX_PRINT];
+    FILE* lng = fopen("lng.txt","r+");
+    if (!lng) return 0; // Se não existe arquivo, retorna 0
+    int pids[MAX_PRINT];
     int count = 0;
-	while(count < PID_MAX_PRINT && fscanf(lng, "%d", &pids[count])==1) {
-    	printf("PID: %i\n",pids[count]);
+    while(count < PID_MAX_PRINT && fscanf(lng, "%d", &pids[count])==1) {
+        printf("PID: %i\n",pids[count]);
         count++;
     }
-    fclose(lng);
+    fclose(lng); // Fechar arquivo antes de retornar
     return count;
 }
+
 int main() {
-	start_analist();
+    start_analist();
     sem_block = sem_open("/sem_block", O_RDWR);
     if (sem_block == SEM_FAILED) {
         sem_block = sem_open("/sem_block", O_CREAT, 0644, 1);
@@ -37,26 +39,25 @@ int main() {
     raise(SIGSTOP);
     while(1) {
         sem_wait(sem_block);
-        // Ler até 10 pids do arquivo lng.txt
-        FILE *lng = fopen("lng.txt", "r+");
+        // Verifica se LNG existe
+        FILE *lng = fopen("lng.txt", "r");
         if (!lng) {
-            // se não existe, desbloqueia e dorme
             sem_post(sem_block);
             raise(SIGSTOP);
             continue;
         }
+        fclose(lng);
+
         int count = print_pids(10);
         if (count == 0) {
-            fclose(lng);
             sem_post(sem_block);
             raise(SIGSTOP);
             continue;
         }
-        fseek(lng, 0, SEEK_SET);
+
+        lng = fopen("lng.txt","r");
         int pidsArray[ALLOC_SIZE];
         int total = 0;
-        fclose(lng);
-        lng = fopen("lng.txt","r");
         int aux;
         int skip = count;
         while(fscanf(lng,"%d",&aux)==1) {
@@ -68,7 +69,7 @@ int main() {
         }
         fclose(lng);
 
-        // Reescrever o arquivo sem os primeiros 10
+        // Reescrever o arquivo sem os primeiros 'count'
         lng = fopen("lng.txt","w");
         for (int i=0; i<total; i++) {
             fprintf(lng,"%d\n",pidsArray[i]);
