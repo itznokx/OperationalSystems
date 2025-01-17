@@ -26,7 +26,7 @@ static void tratainterrupt (struct timer_list* t)
 
 static int __init vkeyboard_init (void)
 {
-	static vkeyboard* vkb;
+	struct vkeyboard* vkb;
 
 	vkb = kzalloc(sizeof(struct vkeyboard),GFP_KERNEL);
 
@@ -50,7 +50,7 @@ static int __init vkeyboard_init (void)
 
 static void __exit vkeyboar_exit(void)
 {
-	static vkeyboard* vkb;
+	struct vkeyboard* vkb;
 
 	del_timer_sync(&vkb->keyboardtimer);
 

@@ -1,0 +1,1 @@
+savedcmd_/home/nokx/Documents/programming/OperationalSystems/data_IO/timer/Module.symvers :=  scripts/mod/modpost -M -m -a      -o /home/nokx/Documents/programming/OperationalSystems/data_IO/timer/Module.symvers -T /home/nokx/Documents/programming/OperationalSystems/data_IO/timer/modules.order -i Module.symvers -e 
