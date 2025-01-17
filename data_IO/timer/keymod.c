@@ -23,3 +23,10 @@ static void tratainterrupt (struct timer_list* t)
 
 	mod_timer (&vkb->keyboardtimer,jiffies+1000);
 }
+
+static int __init vkeyboard_init (void)
+{
+	static vkeyboard* vkb;
+
+	vkb = kzalloc(sizeof(struct vkeyboard),GFP_KERNEL);
+}
