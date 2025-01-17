@@ -29,4 +29,6 @@ static int __init vkeyboard_init (void)
 	static vkeyboard* vkb;
 
 	vkb = kzalloc(sizeof(struct vkeyboard),GFP_KERNEL);
+
+	vkb->inputdev = input_allocate_device();
 }
