@@ -5,62 +5,83 @@
 #include <linux/timer.h>
 #include <linux/slab.h>
 
-struct vkeyboard 
-{
-	struct input_dev* inputdev;
-	struct timer_list keyboardtimer;
+//Compilar: make
+//instalar: sudo insmod keymod.ko
+//remover: sudo rmmod keymod 
+
+struct vkeyboard {
+    struct input_dev *inputdev;
+    struct timer_list keyboardtimer;
 };
 
-static void tratainterrupt (struct timer_list* t)
+struct vkeyboard *vkb;
+
+// FunÃ§Ã£o de interrupÃ§Ã£o do timer
+static void vkeyboard_interrupt(struct timer_list *t)
 {
-	struct vkeyboard* vkb = from_timer(vkb, t, keyboardtimer);
+    struct vkeyboard *vkb = from_timer(vkb, t, keyboardtimer);
 
-	input_report_key (vkb->inputdev,KEY_A,1);
-	input_sync(vkb->inputdev);
+    // Emite uma tecla aleatÃ³ria a cada chamada do timer
+    input_report_key(vkb->inputdev, KEY_A, 1);
+    input_sync(vkb->inputdev);  // Sincroniza o evento de entrada
 
-	input_report_key(vkb->inputdev,KEY_A,0);
-	input_sync(vkb->inputdev);
+    // Reporta a tecla como liberada (solta)
+    input_report_key(vkb->inputdev, KEY_A, 0);
+    input_sync(vkb->inputdev);
 
-	mod_timer (&vkb->keyboardtimer,jiffies+1000);
+    // Reconfigura o timer para ser reexecutado
+    mod_timer(&vkb->keyboardtimer, jiffies + 1000);
 }
 
-static int __init vkeyboard_init (void)
+// FunÃ§Ã£o de inicializaÃ§Ã£o do driver
+static int __init vkeyboard_init(void)
 {
-	struct vkeyboard* vkb;
 
-	vkb = kzalloc(sizeof(struct vkeyboard),GFP_KERNEL);
+    // Aloca memÃ³ria para o teclado virtual
+    vkb = kzalloc(sizeof(struct vkeyboard), GFP_KERNEL);
 
-	vkb->inputdev = input_allocate_device();
-	vkb->inputdev->name = "Teclado relógio";
-	vkb->inputdev->phys = "ps2/input0";
-	vkb->inputdev->id.bustype = BUS_USB;
-	vkb->inputdev->id.vendor = 0x1234;
-	vkb->inputdev->id.product = 0x5670;
+    // Cria o dispositivo de entrada
+    vkb->inputdev = input_allocate_device();
 
-	set_bit(EV_KEY,vkb->inputdev->evbit);
-	set_bit(KEY_A,vkb->inputdev->keybit);
+    // Configura o dispositivo de entrada
+    vkb->inputdev->name = "Virtual A";
+    vkb->inputdev->phys = "ps2/input0";
+    vkb->inputdev->id.bustype = BUS_USB;
+    vkb->inputdev->id.vendor = 0x1234;
+    vkb->inputdev->id.product = 0x5678;
 
-	input_register_device(vkb->inputdev);
+    // Defina as teclas que o teclado pode emular
+    set_bit(EV_KEY, vkb->inputdev->evbit);  // Ativa os eventos de chave
 
-	timer_setup(&vkb->keyboardtimer,tratainterrupt, 0);
-	mod_timer(&vkb->keyboardtimer, jiffies+ 1000);
+    set_bit(KEY_A, vkb->inputdev->keybit);
 
-	return 0;
+    // Registra o dispositivo de entrada
+    input_register_device(vkb->inputdev);
+
+    // Inicializa o temporizador
+    timer_setup(&vkb->keyboardtimer, vkeyboard_interrupt, 0);
+    mod_timer(&vkb->keyboardtimer, jiffies + 1000); 
+
+
+    return 0;
 }
 
-static void __exit vkeyboar_exit(void)
+// FunÃ§Ã£o de limpeza do driver
+static void __exit vkeyboard_exit(void)
 {
-	struct vkeyboard* vkb;
 
-	del_timer_sync(&vkb->keyboardtimer);
+    // Libera o temporizador
+    del_timer_sync(&vkb->keyboardtimer);
 
-	input_unregister_device(vkb->inputdev);
+    // Desregistra o dispositivo de entrada
+    input_unregister_device(vkb->inputdev);
+    kfree(vkb);
 
-	kfree(vkb);
 }
-module_init (vkeyboard_init);
-module_exit (vkeyboar_exit);
+
+module_init(vkeyboard_init);
+module_exit(vkeyboard_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("SO");
-MODULE_DESCRIPTION("VIRTUAL KEYBOARD");
+MODULE_AUTHOR("S.O.");
+MODULE_DESCRIPTION("Driver de teclado PS/2 virtual que emite a tecla A periodicamente.");
